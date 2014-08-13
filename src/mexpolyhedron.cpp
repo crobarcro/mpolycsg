@@ -2,7 +2,7 @@
 #include "mex.h"
 
 #define CLASS_HANDLE_SIGNATURE 0xAA01F0A1
-#include "/home/rcrozier/src/mfiles/ecdf-svn/utilities/cpp-class-interface/class_handle.hpp"
+#include "class_handle.hpp"
 
 #include "polyhcsg/polyhedron.h"
 #include "polyhcsg/polyhedron_binary_op.h"
