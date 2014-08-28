@@ -44,8 +44,10 @@ function mpolyhcsgsetup(dodebug, verbose)
     % return to original dir on interruption or completion
     OC = onCleanup (@() cd(origdir));
     
+    thisfiledir = fullfile (fileparts(which('mpolyhcsgsetup.m')));
+    
     % change to the directory where 
-    cd(fullfile (fileparts(which('mpolyhcsgsetup.m'))));
+    cd(thisfiledir);
     
     % make architecture specific mex directory if it doesn't already exist
     warning off MATLAB:MKDIR:DirectoryExists
@@ -73,6 +75,7 @@ function mpolyhcsgsetup(dodebug, verbose)
     mexcommands = [ common_compiler_flags, ...
                     { ...
                       '../src/mexpolyhedron.cpp', ...
+                      ['-I"', fullfile(thisfiledir, 'src') ,'"'], ...
                     }, ...
                     libcommands ...
                   ];
@@ -83,5 +86,7 @@ function mpolyhcsgsetup(dodebug, verbose)
         % call mex with the appropriately constructed commands
         mex(mexcommands{:});
     end
+    
+    addpath (fullfile (thisfiledir, mexdir));
 
 end
