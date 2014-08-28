@@ -21,8 +21,26 @@ public:
         // get a pointer to the other polyhedron
         polyhedron* otherph = getotherpoly(nrhs, prhs);
       
-        // replace the wrapped poly with a copy of the one supplied
-        ph = polyhedron (*otherph);
+        if (otherph != NULL)
+        {
+            try
+            {
+                // replace the wrapped poly with a copy of the one supplied
+                ph = polyhedron (*otherph);
+            }
+            catch (...)
+            {
+                ph = polyhedron ();
+                
+                mexErrMsgIdAndTxt("CSG:copy",
+                    "Other polyhedron could not be copied, exception thrown.");
+            }
+        }
+        else
+        {
+            mexErrMsgIdAndTxt("CSG:copy",
+                "Other polyhedron could not be copied, invalid pointer.");
+        }
     }
     
     void extrusion (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
@@ -404,7 +422,23 @@ public:
       
         // replace the polyhedron from this obect with the union of it and the
         // other
-        ph = union_op (ph, *otherph);
+        if (otherph != NULL)
+        {
+            try
+            {
+                ph = union_op (ph, *otherph);
+            }
+            catch (...)
+            {
+                mexErrMsgIdAndTxt("CSG:union",
+                    "Union operation failed, exception thrown.");
+            }
+        }
+        else
+        {
+            mexErrMsgIdAndTxt("CSG:union",
+                "Invalid pointer to other poly.");
+        }
     }
     
     void csgdifference(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) 
@@ -536,6 +570,12 @@ public:
                                 ax, ay, az, aa );
     }
     
+    
+    void triangulate (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+    {
+        ph = ph.triangulate ();
+    }
+    
 private:
 
     polyhedron ph;
@@ -585,6 +625,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
        REGISTER_CLASS_METHOD(polyhedron_interface,makecylinder)
        REGISTER_CLASS_METHOD(polyhedron_interface,extrusion)
        REGISTER_CLASS_METHOD(polyhedron_interface,surface_of_revolution)
+       REGISTER_CLASS_METHOD(polyhedron_interface,triangulate)
      END_MEX_CLASS_WRAPPER(polyhedron_interface)
 
 
