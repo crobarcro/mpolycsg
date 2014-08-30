@@ -3,23 +3,41 @@
 
 p = csg.polyhedron;
 p.makebox(1,1,1);
+[nodes, vertinds] = p.triangulate ();
+p.render ();
 
 n = p.num_faces ();
+verts = [];
+facecoords = [];
 
-for face_id = 0:n-1
+%for face_id = 0:n-1
+%    
+%    verts = [verts; p.get_face_vertices (face_id)];
+%    
+%    for indii = 1:numel(verts)
+%    
+%        facecoords = [ facecoords; p.get_vertex(verts(faceid+1,indii)) ];
+%    
+%    end
+%
+%end
 
-    facecoords = [];
-    
-    verts = p.get_face_vertices (face_id)
-    
-    for indii = 1:numel(verts)
-    
-        facecoords = [ facecoords; p.get_vertex(verts(indii)) ]
-    
-    end
-   
+if exist ('surf2mesh')
+    [node,elem,face] = surf2mesh(nodes, vertinds+1, [-1 -1 -1], [1 1 1], 0.9, 0.001, [0,0,0]); %,p0,p1,keepratio,maxvol,regions,holes,forcebox)
 
+    plotmesh(node,face(:,1:3));
+    axis equal;
 end
+
+
+%%
+
+p = csg.polyhedron;
+p.makebox(1,1,1);
+[fv.vertices, fv.faces] = p.triangulate ();
+fv.faces = fv.faces + 1;
+
+stlwrite('test.stl',fv) 
 
 
 %% 
@@ -95,50 +113,107 @@ links = [0;1;2;];
 distance = 1;
 
 p = csg.polyhedron; 
-p.makeextrusion (nodes, links, distance);
+p.make_extrusion (distance, nodes, links );
+p.render
+
+%%
+nodes = [0, 0;
+         1, 0;
+         0.5, 1 ];
+
+links = [0;1;2;];
+         
+distance = 1;
+segments = 100;
+dTheta = 360 / segments;
+
+p = csg.polyhedron; 
+p.extrude_rotate (distance, segments, dTheta, nodes, links );
 p.render
 
 %%
 
+p1 = csg.polyhedron; 
+p1.makebox (1,1,1,0); 
+p1.rotate ( [0, tau/8, tau/4] );
+
 nodes = [0, 0;
+         1, 0;
+         0.5, 1 ];
+
+links = [0;1;2;];
+         
+distance = 1;
+
+p2 = csg.polyhedron; 
+p2.make_extrusion (distance, nodes, links );
+
+p2.union(p1);
+
+p2.render
+
+%%
+
+nodes = [0, 0.1;
          1, 1;
          2, 1.5;
-         2, 0; ];
+         2, 0.1; ];
 
 links = [0;1;2;3;];
 
-p = csg.polyhedron; 
+p1 = csg.polyhedron; 
 
-p.make_surface_of_revolution (nodes, links);
+p1.make_surface_of_revolution (nodes, links, pi);
+% 
+p1.render
 
-p.render
+p2 = csg.polyhedron; 
+p2.make_surface_of_revolution (nodes, links, pi);
 
-p.make_surface_of_revolution (nodes, links, pi);
+p2.translate ([0.7,0,0])
 
-p.render
+% p2.render 
+
+p2.union (p1);
+
+p3 = csg.polyhedron; 
+p3.make_surface_of_revolution (nodes, links, pi);
+
+p3.translate ([1.4,0,0])
+
+p2.union (p3);
+p2.render
 
 
 %% corner radius
 
 p = csg.polyhedron ();
 
-p.makebox (0.5,0.5,0.5,0);
+p.makebox (0.6,0.6,0.6,0);
+
+% p.render ()
+
+% p3.makebox (0.5,0.5,0.5,0);
 
 %p.render ()
 
-p2 = csg.polyhedron ();
+p2 = csg.sphere (0.5);
 
-p2.makesphere (0.5, 1);
+% p2.makesphere (0.5, 1, 37);
 
-%p2.render ()
+% p2.render ()
 
-p_cornerrad = p - p2;
+% p_cornerrad = p - p2;
 
-%p_cornerrad.render();   
+p_cornerrad = p2;
+
+p_cornerrad.render();   
 
 p3 = csg.polyhedron ();
 
-p3.makebox (0.8,0.8,0.8,1);
+p3.makebox (0.6,0.6,0.6,0);
+
+% p3.makebox (0.8,0.8,0.8,1);
 
 p3.difference ( p_cornerrad );
 
