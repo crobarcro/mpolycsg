@@ -55,38 +55,33 @@ public:
 
         // check the appropriate number of input arguemtns were supplied
         int noffset = mxnarginchk (nrhs, nallowed, 2);
-        
-        // get the desired vertex id
-        mxNumericArrayWrapper wCoords = mxNumericArrayWrapper(prhs[2]);
-        mxNumericArrayWrapper wLines = mxNumericArrayWrapper(prhs[3]);
         double distance = mxnthargscalar (nrhs, prhs, 3, 2);
         
-        // copy the coordinates matrix
-        int m = 0;
-        int n = 0;
-        std::vector<mwSize> index; index.push_back(0); index.push_back(0);
-        for (m = 0; m < wCoords.getRows (); m++)
-        {
-            for (n = 0; n < 2; n++)
-            {
-                index[0] = m;
-                index[1] = n;
-                coords.push_back (wCoords.getDoubleValue(index));
-            }  
-        }
-        
-        
-        for (m = 0; m < wLines.getRows (); m++)
-        {
-            for (n = 0; n < 1; n++)
-            {
-                index[0] = m;
-                index[1] = n;
-                lines.push_back ((int)(wLines.getDoubleValue(index)));
-            }  
-        }
+        getpolygon (prhs[2], prhs[3], coords, lines);
         
         ph.initialize_create_extrusion ( coords, lines, distance );
+    }
+    
+    void extrude_rotate (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+    {
+        std::vector<double> coords;
+        std::vector<int> lines; 
+        
+        // no input arguemtns expected
+        std::vector<int> nallowed;
+        nallowed.push_back (5);
+
+        // check the appropriate number of input arguemtns were supplied
+        int noffset = mxnarginchk (nrhs, nallowed, 2);
+        
+        // get the polygon to be extruded
+        getpolygon (prhs[2], prhs[3], coords, lines);
+        
+        double distance = mxnthargscalar (nrhs, prhs, 3, 2);
+        int segments = mxnthargscalar (nrhs, prhs, 4, 2);
+        double dTheta = mxnthargscalar (nrhs, prhs, 5, 2);
+        
+        ph.initialize_create_extrusion ( coords, lines, distance, segments, dTheta );
     }
     
     void surface_of_revolution (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
@@ -105,10 +100,9 @@ public:
 
         // check the appropriate number of input arguemtns were supplied
         int noffset = mxnarginchk (nrhs, nallowed, 2);
-        
-        // get the inputs
-        mxNumericArrayWrapper wCoords = mxNumericArrayWrapper(prhs[2]);
-        mxNumericArrayWrapper wLines = mxNumericArrayWrapper(prhs[3]);
+
+        // get the polygon to be rotated
+        getpolygon (prhs[2], prhs[3], coords, lines);
         
         if (noffset > 2)
         {
@@ -118,30 +112,6 @@ public:
         if (noffset > 3)
         {
              segments = mxnthargscalar (nrhs, prhs, 4, 2);
-        }
-        
-        // copy the coordinates matrix
-        int m = 0;
-        int n = 0;
-        std::vector<mwSize> index; index.push_back(0); index.push_back(0);
-        for (m = 0; m < wCoords.getRows (); m++)
-        {
-            for (n = 0; n < 2; n++)
-            {
-                index[0] = m;
-                index[1] = n;
-                coords.push_back (wCoords.getDoubleValue(index));
-            }  
-        }
-        
-        for (m = 0; m < wLines.getRows (); m++)
-        {
-            for (n = 0; n < 1; n++)
-            {
-                index[0] = m;
-                index[1] = n;
-                lines.push_back ((int)(wLines.getDoubleValue(index)));
-            }  
         }
         
         ph.initialize_create_surface_of_revolution ( coords, lines, angle, segments );
@@ -597,6 +567,42 @@ private:
         return otherph;
     }
     
+    void getpolygon (const mxArray * coordsMxArray, const mxArray * linesMxArray, std::vector<double> &coords, std::vector<int> &lines)
+    {
+        
+        coords.clear ();
+        lines.clear ();
+        
+        // get the desired vertex id
+        mxNumericArrayWrapper wCoords = mxNumericArrayWrapper(coordsMxArray);
+        mxNumericArrayWrapper wLines = mxNumericArrayWrapper(linesMxArray);
+        
+        // copy the coordinates matrix
+        int m = 0;
+        int n = 0;
+        std::vector<mwSize> index; index.push_back(0); index.push_back(0);
+        for (m = 0; m < wCoords.getRows (); m++)
+        {
+            for (n = 0; n < 2; n++)
+            {
+                index[0] = m;
+                index[1] = n;
+                coords.push_back (wCoords.getDoubleValue(index));
+            }
+        }
+        
+        
+        for (m = 0; m < wLines.getRows (); m++)
+        {
+            for (n = 0; n < 1; n++)
+            {
+                index[0] = m;
+                index[1] = n;
+                lines.push_back ((int)(wLines.getDoubleValue(index)));
+            }
+        }
+    }
+    
     
 };
 
@@ -624,6 +630,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
        REGISTER_CLASS_METHOD(polyhedron_interface,maketorus)
        REGISTER_CLASS_METHOD(polyhedron_interface,makecylinder)
        REGISTER_CLASS_METHOD(polyhedron_interface,extrusion)
+       REGISTER_CLASS_METHOD(polyhedron_interface,extrude_rotate)
        REGISTER_CLASS_METHOD(polyhedron_interface,surface_of_revolution)
        REGISTER_CLASS_METHOD(polyhedron_interface,triangulate)
      END_MEX_CLASS_WRAPPER(polyhedron_interface)
