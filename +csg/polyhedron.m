@@ -127,8 +127,8 @@ classdef polyhedron < cppinterface
             %   
             
             if nargin < 4
+                % assume nodes are in sequence
                 links = 0:size(nodes, 1)-1;
-%                 links = [links, 0];
             end
             
             this.cppcall ('extrusion', nodes, links(:), distance);
@@ -150,7 +150,6 @@ classdef polyhedron < cppinterface
             
             if nargin < 4
                 links = 0:size(nodes, 1)-1;
-%                 links = [links, 0];
             end
             
             this.cppcall ('extrude_rotate', nodes, links(:), distance, segments, dTheta);
@@ -441,12 +440,12 @@ classdef polyhedron < cppinterface
             [fv.vertices, fv.faces] = this.triangulate ();
             fv.faces = fv.faces + 1;
 
-            stlwrite(filename,fv);
+            csg.stlwrite(filename,fv);
         
         end
         
         function objwrite (this, filename)
-            % VERTFACE2OBJ Save a set of vertice coordinates and faces as a Wavefront/Alias Obj file
+            % write the polyhedron to an obj file
 
             fid = fopen(filename,'w');
             
@@ -519,7 +518,7 @@ classdef polyhedron < cppinterface
         end
         
         function plywrite (this, filename)
-            % write the polyhedron to an OFF file
+            % write the polyhedron to a PLY file
             
             % open the output file and check for success
             fid = fopen(filename,'w');
