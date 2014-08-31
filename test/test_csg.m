@@ -191,21 +191,29 @@ p = csg.polyhedron ();
 
 p.makebox (0.6,0.6,0.6,0);
 
-% p.render ()
+p.render ()
 
 % p3.makebox (0.5,0.5,0.5,0);
 
 %p.render ()
 
-p2 = csg.sphere (0.5);
+% p2 = csg.polyhedron ();
+% p2.makecylinder (0.5, 0.3, 1)
+% p2.render ();
+
+% p2 = csg.cube (0.3, 0.3, 0.3, 0);
+% p2.render ();
+
+p2 = csg.sphere (0.5, 'segx', 20, 'segy', 20);
+%  p2.rotate ([90, 0, 0])
 
 % p2.makesphere (0.5, 1, 37);
 
-% p2.render ()
+p2.render ()
 
-% p_cornerrad = p - p2;
+p_cornerrad = p - p2;
 
-p_cornerrad = p2;
+% p_cornerrad = p2;
 
 p_cornerrad.render();   
 
@@ -218,4 +226,12 @@ p3.makebox (0.6,0.6,0.6,0);
 p3.difference ( p_cornerrad );
 
 p3.render ();
+
+
+nodes = p_cornerrad.get_vertices ()
+
+[u,I,J] = unique(nodes, 'rows', 'first');
+hasDuplicates = size(u,1) < size(nodes,1)
+ixDupRows = setdiff(1:size(nodes,1), I)
+dupRowValues = nodes(ixDupRows,:)
 
