@@ -1,33 +1,12 @@
 /*
    class_handle.hpp
    
-   A C++ class interface for Matlab/Octave
+   A C++ mex class interface for Matlab/Octave
  
    Copyright (c) 2012, Oliver Woodford
    Copyright (c) 2014, Richard Crozier
    All rights reserved.
 
-   Redistribution and use in source and binary forms, with or without 
-   modification, are permitted provided that the following conditions are 
-   met:
-
-       * Redistributions of source code must retain the above copyright 
-         notice, this list of conditions and the following disclaimer.
-       * Redistributions in binary form must reproduce the above copyright 
-         notice, this list of conditions and the following disclaimer in 
-         the documentation and/or other materials provided with the distribution
-
-   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
-   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE 
-   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
-   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
-   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
-   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
-   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
-   POSSIBILITY OF SUCH DAMAGE.
 */
 
 
@@ -136,7 +115,7 @@ template<class base> inline void destroyObject(const mxArray *in)
 //
 // void methodname (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 //
-// When called, the method will be passed all the input arguments passed to the
+// When called, the method will be passed all the input arguments passed to the 
 // mexfunction.
 //
 // Then in your mexfunction, use the macros: BEGIN_MEX_CLASS_WRAPPER, 
@@ -148,12 +127,12 @@ template<class base> inline void destroyObject(const mxArray *in)
 //     BEGIN_MEX_CLASS_WRAPPER(interfaceClassName)
 //       REGISTER_CLASS_METHOD(interfaceClassName,method1name)
 //       REGISTER_CLASS_METHOD(interfaceClassName,method2name)
-//     BEGIN_MEX_CLASS_WRAPPER(interfaceClassName)
+//     END_MEX_CLASS_WRAPPER(interfaceClassName)
 // }
 //
 // For information, the instance of the wrapped class will then be named 
-// interfaceClassName_instance where interfaceClassName should be the name of
-// the class which you previously will have passed into the
+// interfaceClassName_instance where interfaceClassName should be the name of 
+// the class which you previously will have passed into the 
 // BEGIN_MEX_CLASS_WRAPPER macro
 //
 //
@@ -164,7 +143,7 @@ template<class base> inline void destroyObject(const mxArray *in)
                                                                                                              \
     std::map<std::string, classMethod> s_map_mex_wrapped_ClassMethodStrs;                                    \
 
-// REGISTER_CLASS_METHOD
+// REGISTER_CLASS_METHOD 
 #define REGISTER_CLASS_METHOD(WRAPPEDCLASS,METHOD)  s_map_mex_wrapped_ClassMethodStrs[#METHOD] = &WRAPPEDCLASS::METHOD;
 
 // END_MEX_CLASS_WRAPPER 
@@ -218,29 +197,29 @@ template<class base> inline void destroyObject(const mxArray *in)
     {                                                                                                        \
         mexErrMsgTxt("Unrecognised class command string.");                                                  \
     }                                                                                                        \
-   
+    
 
 ///////////////////        HELPER FUNCTIONS        ///////////////////
 
 // mex helper functions
 namespace mexutils {
 
- 
+  
 void mxtestnumeric (const mxArray* testMxArray) {
-
+ 
    if (!mxIsNumeric(testMxArray))
    {
      mexErrMsgIdAndTxt("CPP:mxtestnumeric",
          "Input argument is not numeric.");
-   }
-  
+   } 
+   
 }
 
 // check the number of input arguments provided
 int mxnarginchk (int nargs, std::vector<int> nallowed, int offset=0)
 {
   int offsetnargs = nargs-offset;
- 
+  
   if (nallowed.size () > 0)
   {
      for (int i = 0; i < nallowed.size (); i++)
@@ -257,52 +236,52 @@ int mxnarginchk (int nargs, std::vector<int> nallowed, int offset=0)
       mexErrMsgIdAndTxt("CPP:mxnarginchk",
            "No allowed number of arguments supplied.");
   }
- 
+  
   mexErrMsgIdAndTxt("CPP:mxnarginchk",
          "Incorrect number of input arguments. You supplied %i args with an offset of %i", nargs, offset);
- 
+  
   return offsetnargs;
 }
 
 void mxnaroutgchk (const int nlhs, int ntharg)
 {
- 
+  
   if (ntharg <= nlhs)
   {
       // return as we have a matching number of arguments
       return;
   }
- 
+  
   // throw an error
   mexErrMsgIdAndTxt("CPP:mxnargoutchk",
          "Incorrect number of output arguments.");
- 
+  
   return;
 }
 
 // Get the n'th scalar input argumetn to a mexfunction
 double mxnthargscalar (int nrhs, const mxArray *prhs[], int ntharg, int offset=0)
 {
- 
+  
    ntharg = ntharg + offset;
- 
+  
    if (ntharg > nrhs)
    {
      mexErrMsgIdAndTxt("CPP:mxnthargscalar",
          "Requested argument is greater than total number of arguments.");
    }
-  
+   
    // check matrix is numeric
-   mxtestnumeric (prhs[ntharg-1]);
-  
+   mxtestnumeric (prhs[ntharg-1]); 
+   
    if ((mxGetN(prhs[ntharg-1]) != 1) || (mxGetM(prhs[ntharg-1]) != 1))
    {
      mexErrMsgIdAndTxt("CPP:mxnthargscalar",
          "Input argument is not scalar.");
    }
-  
+   
    return mxGetScalar(prhs[ntharg-1]);
-  
+   
 }
 
 
@@ -312,10 +291,10 @@ void mxSetLHS (const int* const out, int argn, int size, const int nlhs, mxArray
 
     // check the argument position is possible
     mxnaroutgchk (nlhs, argn);
- 
+  
     // create the output matrix to hold the vector of numbers
     plhs[argn-1] = mxCreateNumericMatrix(1, size, mxINT32_CLASS, mxREAL);
-   
+    
     int * outArray = (int *) mxGetData(plhs[argn-1]);
 
     if (outArray)
@@ -337,8 +316,8 @@ void mxSetLHS (const int* const out, int argn, int size, const int nlhs, mxArray
 void mxSetLHS (const int out, int argn, const int nlhs, mxArray* plhs[])
 {
     //int outcp = out;
- 
-    // call the function for returning a vector, with a pointer to the the
+  
+    // call the function for returning a vector, with a pointer to the the 
     // output data
     mxSetLHS (&out, argn, 1, nlhs, plhs);
 }
@@ -350,10 +329,10 @@ void mxSetLHS (const std::vector<int> out, int argn, const int nlhs, mxArray* pl
 
     // check the argument position is possible
     mxnaroutgchk (nlhs, argn);
- 
+  
     // create the output matrix to hold the vector of numbers
     plhs[argn-1] = mxCreateNumericMatrix(1, out.size (), mxINT32_CLASS, mxREAL);
-   
+    
     int * outArray = (int *) mxGetData(plhs[argn-1]);
 
     if (outArray)
@@ -377,10 +356,10 @@ void mxSetLHS (const float* const out, int argn, int size, const int nlhs, mxArr
 {
     // check the argument position is possible
     mxnaroutgchk (nlhs, argn);
- 
+  
     // create the output matrix to hold the vector of numbers
     plhs[argn-1] = mxCreateNumericMatrix(1, size, mxSINGLE_CLASS, mxREAL);
-   
+    
     float * outArray = (float *) mxGetData(plhs[argn-1]);
 
     if (outArray)
@@ -396,13 +375,13 @@ void mxSetLHS (const float* const out, int argn, int size, const int nlhs, mxArr
         mexErrMsgIdAndTxt("CPP:mxSetLHS",
          "Unable to set output.");
     }
-   
+    
 }
 
 // return float
 void mxSetLHS (const float out, int argn, const int nlhs, mxArray* plhs[])
 {
-    // call the function for returning a vector, with a pointer to the the
+    // call the function for returning a vector, with a pointer to the the 
     // output data
     mxSetLHS (&out, argn, 1, nlhs, plhs);
 }
@@ -413,10 +392,10 @@ void mxSetLHS (const std::vector<float> out, int argn, const int nlhs, mxArray* 
 
     // check the argument position is possible
     mxnaroutgchk (nlhs, argn);
- 
+  
     // create the output matrix to hold the vector of numbers
     plhs[argn-1] = mxCreateNumericMatrix(1, out.size (), mxSINGLE_CLASS, mxREAL);
-   
+    
     float * outArray = (float *) mxGetData(plhs[argn-1]);
 
     if (outArray)
@@ -440,10 +419,10 @@ void mxSetLHS (const double* const out, int argn, int size, const int nlhs, mxAr
 {
     // check the argument position is possible
     mxnaroutgchk (nlhs, argn);
- 
+  
     // create the output matrix to hold the vector of numbers
     plhs[argn-1] = mxCreateNumericMatrix(1, size, mxDOUBLE_CLASS, mxREAL);
-   
+    
     double * outArray = (double *) mxGetData(plhs[argn-1]);
 
     if (outArray)
@@ -473,10 +452,10 @@ void mxSetLHS (const std::vector<double> out, int argn, const int nlhs, mxArray*
 
     // check the argument position is possible
     mxnaroutgchk (nlhs, argn);
- 
+  
     // create the output matrix to hold the vector of numbers
     plhs[argn-1] = mxCreateNumericMatrix(1, out.size (), mxDOUBLE_CLASS, mxREAL);
-   
+    
     double * outArray = (double *) mxGetData(plhs[argn-1]);
 
     if (outArray)
@@ -499,43 +478,40 @@ void mxSetLHS (const std::vector<double> out, int argn, const int nlhs, mxArray*
 class mxNumericArrayWrapper
 {
 public:
- 
+  
   // constructor
   mxNumericArrayWrapper (const mxArray* wrappedMxArray)
   {
       mxtestnumeric (wrappedMxArray);
-   
+    
       wMxArray = wrappedMxArray;
-   
+    
       // get the number of dimensions
       mwSize ndims = mxGetNumberOfDimensions(wMxArray);
-   
-      mwSize* dimspntr = mxGetDimensions(wMxArray);
-   
+    
+      const mwSize* dimspntr = mxGetDimensions(wMxArray);
+    
       // get the dimensions and push them into the _dimensions vector
       for (int i = 0; i < ndims; i++)
       {
           mwSize dimsize = *(dimspntr+i);
           _dimensions.push_back(dimsize);
       }
-     
-     
-     
-     
+      
   }
- 
+  
   double getDoubleValue (std::vector<mwSize> index)
   {
       // check it's  double matrix
       if (!mxIsDouble (wMxArray))
       {
           mexErrMsgIdAndTxt("CPP:mxArrayWrapper:notdouble",
-              "Double value requested for non-double matrix.");         
+              "Double value requested for non-double matrix.");          
       }
-   
+    
       // check dimensions are within range
       checkDimensions (index);
-     
+      
       // make an array of the appropriate size to hold the indices
       mwIndex* subs = new mwIndex[_dimensions.size ()];
       // copy the index into the subs array
@@ -544,14 +520,14 @@ public:
       mwIndex linindex = mxCalcSingleSubscript(wMxArray, (mwSize)(_dimensions.size ()), subs);
       // delete the memory allocated for the index
       delete[] subs;
-     
+      
       // get the data from the array
       double* data = mxGetPr(wMxArray);
-     
+      
       return data[(int)linindex];
-     
+      
   }
- 
+  
   void checkDimensions (const std::vector<mwSize> &index)
   {
       if (index.size () != _dimensions.size ())
@@ -559,42 +535,42 @@ public:
           mexErrMsgIdAndTxt("CPP:mxArrayWrapper:invalidindex",
               "Wrong number of dimensions specified.");
       }
-     
-     
+      
+      
       for (int i=0; i < index.size (); i++)
       {
           // check we are not outwith any dimensions
           if (index[i] > _dimensions[i])
           {
               mexErrMsgIdAndTxt("CPP:mxArrayWrapper:invalidindex",
-                  "Index to dimension %i out of bounds, value %i out of bound %i.",
+                  "Index to dimension %i out of bounds, value %i out of bound %i.", 
                   i+1, index[i], _dimensions[i] );
           }
       }
   }
- 
+  
   std::vector<mwSize> getDimensions ()
   {
       return _dimensions;
   }
- 
+  
   mwSize getRows ()
   {
       return _dimensions[0];
   }
- 
+  
   mwSize getColumns ()
   {
       return _dimensions[1];
   }
- 
+  
 private:
- 
+  
   const mxArray* wMxArray;
   std::vector<mwSize> _dimensions;
- 
+  
 };
-
+ 
 
 
 } // namespace mexutils
