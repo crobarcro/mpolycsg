@@ -21,10 +21,10 @@ Next get the mpolycsg project
 
     git clone https://github.com/crobarcro/mpolycsg.git mpolycsg
 
-Then start Matlab or Octave change directory to the top level directory of mpolyhcsg and run:
+Then start Matlab or Octave, change directory to the top level directory of mpolyhcsg, and run:
 
     mpolyhcsgsetup
     
-Look at the file test_scg.m for some example uses.
+Look at the file test_csg.m for some example uses.
 
 
