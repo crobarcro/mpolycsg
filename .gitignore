@@ -19,3 +19,6 @@
 *.exe
 *.out
 *.app
+
+# Generated Directories
+mpolyhcsgsetup_mex_files_for_*
