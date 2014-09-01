@@ -39,6 +39,14 @@ fv.faces = fv.faces + 1;
 
 stlwrite('test.stl',fv) 
 
+%%
+
+clear p;
+p = csg.polyhedron;
+p.makebox(1,1,1);
+
+p.freecadwrite (1);
+
 
 %% 
 
