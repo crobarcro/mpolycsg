@@ -564,6 +564,65 @@ classdef polyhedron < cppinterface
             fclose(fid);
             
         end
+        
+        
+        function freecadwrite (this, file)
+            % generates a FreeCAD python script to generate the solid shape
+           
+            if ischar (file)
+                
+                file = fopen (file, 'w+');
+                
+            elseif isempty (file)
+                error('Invalid file id.')
+            end
+            
+            nverts = this.num_vertices ();
+            nfaces = this.num_faces ();
+
+            fprintf(file, 'import Part\n');
+            fprintf(file, 'from FreeCAD import Vector\n');
+            fprintf(file, 'nodes = [ \n');
+            for vind = 0:nverts-1
+                v = this.get_vertex (vind) * 1000; % convert to mm
+                fprintf(file, '        Vector (%f, %f, %f),\n', v(1), v(2), v(3));
+            end
+            fprintf(file, '        ]\n\n');
+            
+            fprintf (file, 'facelist = [];\n\n');
+            
+            for face_id = 0:nfaces-1
+               
+                verts = this.get_face_vertices (face_id);
+                
+                % get the lines for the face
+                fprintf(file, 'facelines = [\n');
+                nfverts = this.num_face_vertices (face_id);
+                for fvind = 2:nfverts
+                    fprintf(file, '              Part.Line(nodes[%d], nodes[%d]),\n', verts(fvind-1), verts(fvind));
+                end
+                fprintf(file, '              Part.Line(nodes[%d], nodes[%d]),\n', verts(nfverts), verts(1));
+                fprintf(file, '            ]\n\n');
+                
+                % create edges for wire
+                fprintf (file, 'faceedges = [];\n');
+                fprintf (file, 'for l in facelines:\n');
+                fprintf (file, '    faceedges.append(Part.Edge(l));\n\n');
+                
+                % create wire
+                fprintf (file, 'facewire = Part.Wire(faceedges);\n\n');
+                
+                % create face and append to list
+                fprintf (file, 'facelist.append(Part.Face(facewire));\n\n');
+                
+            end
+            
+            % create the shell
+            fprintf (file, 'shell = Part.Shell(facelist);\n');
+            fprintf (file, 'solid = Part.Solid(shell);\n');
+            fprintf (file, 'Part.show(solid);\n\n');
+            
+        end
     
     end
 
